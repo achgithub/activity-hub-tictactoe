@@ -29,12 +29,12 @@ export function useGameSocket(
   const [retryCount, setRetryCount] = useState(0);
 
   // SSE URL - RELATIVE (Activity Hub proxies to Unix socket)
-  const sseUrl = `/api/game/${gameId}/stream?token=${encodeURIComponent(token)}`;
+  const sseUrl = `api/game/${gameId}/stream?token=${encodeURIComponent(token)}`;
 
   // API calls - RELATIVE URLs
   const makeMove = useCallback(
     async (position: number) => {
-      const response = await fetch('/api/move', {
+      const response = await fetch('api/move', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ export function useGameSocket(
   );
 
   const forfeit = useCallback(async () => {
-    const response = await fetch(`/api/game/${gameId}/forfeit`, {
+    const response = await fetch(`api/game/${gameId}/forfeit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ export function useGameSocket(
   }, [gameId, user.email, token]);
 
   const claimWin = useCallback(async () => {
-    const response = await fetch(`/api/game/${gameId}/claim-win`, {
+    const response = await fetch(`api/game/${gameId}/claim-win`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
