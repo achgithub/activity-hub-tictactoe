@@ -6,11 +6,8 @@ import App from './App';
 // Import game-specific board CSS
 import './styles/tictactoe-board.css';
 
-// Inject shared Activity Hub CSS from Activity Hub backend
-const link = document.createElement('link');
-link.rel = 'stylesheet';
-link.href = `http://${window.location.hostname}:3001/shared/activity-hub.css`;
-document.head.appendChild(link);
+// NOTE: Shared Activity Hub CSS is auto-loaded by activity-hub-sdk
+// No manual CSS injection needed
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSessionAwareness } from 'activity-hub-sdk';
+import { useSessionAwareness, AppHeader, GameCard } from 'activity-hub-sdk';
 import { useGameSocket } from '../hooks/useGameSocket';
 import { User } from '../types/game';
 import TicTacToeBoard from './TicTacToeBoard';
@@ -132,27 +132,9 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
 
   return (
     <>
-      {/* App Header Bar */}
-      <div className="ah-app-header">
-        <div className="ah-app-header-left">
-          <span style={{ fontSize: '1.5rem' }}>⭕</span>
-          <h1 className="ah-app-title">Tic-Tac-Toe</h1>
-        </div>
-        <div className="ah-app-header-right">
-          <button
-            className="ah-lobby-btn"
-            onClick={() => {
-              window.location.href = '/lobby';
-            }}
-          >
-            ← Back
-          </button>
-        </div>
-      </div>
+      <AppHeader title="Tic-Tac-Toe" icon="⭕" />
 
-      {/* Main content card */}
-      <div className="ah-container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
-        <div className="ah-card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+      <GameCard>
           {/* Header with scores - compact centered */}
           <div style={{ marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
@@ -217,8 +199,7 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
               </button>
             )}
           </div>
-        </div>
-      </div>
+        </GameCard>
 
       {/* Forfeit confirmation modal */}
       {showForfeitConfirm && (
