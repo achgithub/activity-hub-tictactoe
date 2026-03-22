@@ -135,6 +135,7 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
       {/* App Header Bar */}
       <div className="ah-app-header">
         <div className="ah-app-header-left">
+          <span style={{ fontSize: '1.5rem' }}>⭕</span>
           <h1 className="ah-app-title">Tic-Tac-Toe</h1>
         </div>
         <div className="ah-app-header-right">
@@ -144,74 +145,79 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
               window.location.href = '/lobby';
             }}
           >
-            ← Lobby
+            ← Back
           </button>
         </div>
       </div>
 
-      {/* Header with scores - compact centered */}
-      <div style={{ width: '100%', background: 'white', borderBottom: '1px solid #e7e5e4', padding: '12px 16px', marginBottom: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', maxWidth: '600px', margin: '0 auto' }}>
-          <div className={`ah-badge ${isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{mySymbol}</span>
-            <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{myName}</span>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{myScore}</span>
+      {/* Main content card */}
+      <div className="ah-container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        <div className="ah-card" style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+          {/* Header with scores - compact centered */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+              <div className={`ah-badge ${isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{mySymbol}</span>
+                <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{myName}</span>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{myScore}</span>
+              </div>
+              <div style={{ fontSize: '14px', color: '#999', fontWeight: 500, textAlign: 'center' }}>
+                <div>vs</div>
+                <div style={{ fontSize: '11px', color: '#adb5bd' }}>R{game.currentRound} • First to {game.firstTo}</div>
+              </div>
+              <div className={`ah-badge ${!isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
+                <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{opponentScore}</span>
+                <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponentName}</span>
+                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{isPlayer1 ? game.player2Symbol : game.player1Symbol}</span>
+              </div>
+            </div>
           </div>
-          <div style={{ fontSize: '14px', color: '#999', fontWeight: 500, textAlign: 'center' }}>
-            <div>vs</div>
-            <div style={{ fontSize: '11px', color: '#adb5bd' }}>R{game.currentRound} • First to {game.firstTo}</div>
-          </div>
-          <div className={`ah-badge ${!isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{opponentScore}</span>
-            <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponentName}</span>
-            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{isPlayer1 ? game.player2Symbol : game.player1Symbol}</span>
+
+          {/* Game board */}
+          <TicTacToeBoard
+            board={game.board}
+            onCellClick={makeMove}
+            myTurn={isMyTurn}
+            mySymbol={mySymbol}
+            disabled={!ready || !connected || gameEnded || opponentDisconnected}
+          />
+
+          {/* Everything below the board */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '1.5rem' }}>
+            {/* Status message */}
+            <div className={`ah-status-indicator ${isMyTurn && !gameEnded ? 'ah-status--success' : ''} ${gameEnded ? (iWon ? 'ah-status--success' : 'ah-status--error') : ''} ${opponentDisconnected || connectionStatus === 'reconnecting' ? 'ah-status--warning' : ''}`} style={{ fontSize: '18px', fontWeight: 500, padding: '10px 20px' }}>
+              {getStatusMessage()}
+            </div>
+
+            {/* Claim Win button */}
+            {opponentDisconnected && !gameEnded && (
+              <button className="ah-btn-primary" onClick={claimWin}>
+                Claim Win
+              </button>
+            )}
+
+            {error && <div className="ah-banner ah-banner--error">{error}</div>}
+
+            {/* Game actions */}
+            {!gameEnded && connected && ready && (
+              <button className="ah-btn-outline" onClick={() => setShowForfeitConfirm(true)}>
+                Leave Game
+              </button>
+            )}
+
+            {/* Back to Lobby - shown when game ends */}
+            {gameEnded && (
+              <button
+                className="ah-btn-primary"
+                onClick={() => {
+                  window.location.href = '/lobby';
+                }}
+              >
+                Back to Lobby
+              </button>
+            )}
           </div>
         </div>
-      </div>
-
-      {/* Game board */}
-      <TicTacToeBoard
-        board={game.board}
-        onCellClick={makeMove}
-        myTurn={isMyTurn}
-        mySymbol={mySymbol}
-        disabled={!ready || !connected || gameEnded || opponentDisconnected}
-      />
-
-      {/* Everything below the board */}
-      <div className="ah-flex-col-center" style={{ gap: '12px', marginTop: '16px', width: '100%' }}>
-        {/* Status message */}
-        <div className={`ah-status-indicator ${isMyTurn && !gameEnded ? 'ah-status--success' : ''} ${gameEnded ? (iWon ? 'ah-status--success' : 'ah-status--error') : ''} ${opponentDisconnected || connectionStatus === 'reconnecting' ? 'ah-status--warning' : ''}`} style={{ fontSize: '18px', fontWeight: 500, padding: '10px 20px' }}>
-          {getStatusMessage()}
-        </div>
-
-        {/* Claim Win button */}
-        {opponentDisconnected && !gameEnded && (
-          <button className="ah-btn-primary" onClick={claimWin}>
-            Claim Win
-          </button>
-        )}
-
-        {error && <div className="ah-banner ah-banner--error">{error}</div>}
-
-        {/* Game actions */}
-        {!gameEnded && connected && ready && (
-          <button className="ah-btn-outline" onClick={() => setShowForfeitConfirm(true)}>
-            Leave Game
-          </button>
-        )}
-
-        {/* Back to Lobby - shown when game ends */}
-        {gameEnded && (
-          <button
-            className="ah-btn-primary"
-            onClick={() => {
-              window.location.href = '/lobby';
-            }}
-          >
-            Back to Lobby
-          </button>
-        )}
       </div>
 
       {/* Forfeit confirmation modal */}
