@@ -1,0 +1,82 @@
+/* Tic Tac Toe Board - Game-specific styling */
+/* All other UI elements use .ah-* classes from Activity Hub shared CSS */
+
+.ttt-board {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background-color: #F5F5F4; /* Light stone */
+  border-radius: 12px;
+  margin: 2rem auto;
+  width: fit-content;
+}
+
+.ttt-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ttt-cell {
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border: 2px solid #E7E5E4;
+  border-radius: 8px;
+  font-size: 48px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ttt-cell:hover:not(:disabled) {
+  transform: scale(1.05);
+  border-color: #2196F3;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.ttt-cell:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.ttt-cell-x {
+  background-color: #FEF3C7; /* Yellow-50 */
+  color: #D97706;
+}
+
+.ttt-cell-o {
+  background-color: #DBEAFE; /* Blue-50 */
+  color: #2196F3;
+}
+
+.ttt-symbol {
+  font-size: 48px;
+  line-height: 1;
+  user-select: none;
+}
+
+.ttt-symbol-preview {
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.ttt-cell:hover:not(:disabled) .ttt-symbol-preview {
+  opacity: 0.6;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .ttt-cell {
+    width: 80px;
+    height: 80px;
+    font-size: 40px;
+  }
+
+  .ttt-symbol {
+    font-size: 40px;
+  }
+}
