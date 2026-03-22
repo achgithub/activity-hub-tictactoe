@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface TicTacToeBoardProps {
   board: string[];
   onCellClick: (position: number) => void;

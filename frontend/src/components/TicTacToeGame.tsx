@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useAwareness } from 'activity-hub-sdk';
+import { useState } from 'react';
+import { useSessionAwareness } from 'activity-hub-sdk';
 import { useGameSocket } from '../hooks/useGameSocket';
 import { User } from '../types/game';
 import TicTacToeBoard from './TicTacToeBoard';
@@ -31,9 +31,14 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
     game && (user.email === game.player1Id ? game.player2Id : game.player1Id);
 
   // Use Activity Hub awareness to track opponent presence
-  const { peers } = useAwareness(gameId, { userId: user.email });
+  const { participants } = useSessionAwareness(
+    user.email,
+    user.name,
+    'tictactoe',
+    gameId
+  );
   const opponentPresent = opponentId
-    ? peers.some((peer) => peer.userId === opponentId)
+    ? participants.some((p) => p.userId === opponentId)
     : false;
 
   const handleCellClick = async (position: number) => {
