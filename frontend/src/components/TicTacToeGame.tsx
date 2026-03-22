@@ -11,13 +11,13 @@ interface TicTacToeGameProps {
 }
 
 export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProps) {
-  const [error, setError] = useState<string | null>(null);
+  const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
 
   const {
     game,
     connected,
     ready,
-    error: socketError,
+    error,
     connectionStatus,
     retryCount,
     makeMove,
@@ -37,177 +37,204 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
     'tictactoe',
     gameId
   );
-  const opponentPresent = opponentId
-    ? participants.some((p) => p.userId === opponentId)
+  const opponentDisconnected = opponentId
+    ? !participants.some((p) => p.userId === opponentId)
     : false;
 
-  const handleCellClick = async (position: number) => {
-    try {
-      setError(null);
-      await makeMove(position);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to make move');
-    }
-  };
-
-  const handleForfeit = async () => {
-    if (window.confirm('Are you sure you want to forfeit this game?')) {
-      try {
-        setError(null);
-        await forfeit();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to forfeit');
+  // Loading/connecting state
+  if (!game) {
+    const getConnectionMessage = () => {
+      switch (connectionStatus) {
+        case 'connecting':
+          return 'Connecting to game...';
+        case 'reconnecting':
+          return `Reconnecting... (attempt ${retryCount}/5)`;
+        case 'failed':
+          return 'Connection failed';
+        default:
+          return 'Connecting...';
       }
-    }
-  };
+    };
 
-  const handleClaimWin = async () => {
-    try {
-      setError(null);
-      await claimWin();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to claim win');
-    }
-  };
-
-  if (!ready) {
     return (
-      <div className="ah-container" style={{ paddingTop: '4rem', textAlign: 'center' }}>
-        <h2>
-          {connectionStatus === 'connecting' && 'Connecting...'}
-          {connectionStatus === 'reconnecting' && `Reconnecting (attempt ${retryCount})...`}
-          {connectionStatus === 'failed' && 'Connection Failed'}
-        </h2>
-        {socketError && <p className="ah-meta">{socketError}</p>}
+      <div className="ah-container ah-container--narrow" style={{ textAlign: 'center', marginTop: '40px' }}>
+        <div className={connectionStatus === 'failed' ? 'ah-banner ah-banner--error' : ''} style={{ fontSize: '18px', padding: '20px' }}>
+          {getConnectionMessage()}
+        </div>
         {connectionStatus === 'failed' && (
-          <button className="ah-btn-primary" onClick={retry}>
-            Retry
-          </button>
+          <>
+            <button className="ah-btn-primary" onClick={retry} style={{ marginTop: '20px' }}>
+              Tap to Retry
+            </button>
+            <div style={{ marginTop: 15 }}>
+              <button
+                className="ah-btn-outline"
+                onClick={() => {
+                  window.location.href = '/lobby';
+                }}
+              >
+                Back to Lobby
+              </button>
+            </div>
+          </>
+        )}
+        {error && connectionStatus !== 'failed' && (
+          <div className="ah-banner ah-banner--error" style={{ marginTop: '10px' }}>{error}</div>
         )}
       </div>
     );
   }
 
-  if (!game) {
-    return (
-      <div className="ah-container" style={{ paddingTop: '4rem', textAlign: 'center' }}>
-        <h2>Game not found</h2>
-      </div>
-    );
-  }
-
+  // Determine player info
   const isPlayer1 = user.email === game.player1Id;
   const mySymbol = isPlayer1 ? game.player1Symbol : game.player2Symbol;
+  const myName = isPlayer1 ? game.player1Name : game.player2Name;
   const opponentName = isPlayer1 ? game.player2Name : game.player1Name;
-  const isMyTurn =
-    (game.currentTurn === 1 && isPlayer1) || (game.currentTurn === 2 && !isPlayer1);
-  const gameActive = game.status === 'active';
+  const myScore = isPlayer1 ? game.player1Score : game.player2Score;
+  const opponentScore = isPlayer1 ? game.player2Score : game.player1Score;
+
+  // Determine turn
+  const myPlayerNumber = isPlayer1 ? 1 : 2;
+  const isMyTurn = game.currentTurn === myPlayerNumber;
+
+  // Game status
+  const gameEnded = game.status === 'completed';
+  const iWon = game.winnerId === user.email;
+  const isDraw = gameEnded && game.winnerId === null;
+
+  // Status message
+  const getStatusMessage = () => {
+    if (opponentDisconnected) {
+      return 'Opponent disconnected';
+    }
+    if (connectionStatus === 'reconnecting') {
+      return `Reconnecting... (${retryCount}/5)`;
+    }
+    if (!connected) {
+      return 'Reconnecting...';
+    }
+    if (!ready) {
+      return 'Waiting for opponent...';
+    }
+    if (gameEnded) {
+      if (isDraw) {
+        return "It's a draw!";
+      }
+      return iWon ? 'You won!' : 'You lost!';
+    }
+    return isMyTurn ? 'Your turn' : "Opponent's turn";
+  };
+
+  const handleConfirmForfeit = () => {
+    forfeit();
+    setShowForfeitConfirm(false);
+  };
 
   return (
-    <div className="ah-container ah-container--narrow" style={{ paddingTop: '2rem' }}>
-      {/* Header */}
-      <div className="ah-flex-between" style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Tic Tac Toe</h1>
-        {!connected && (
-          <span className="ah-badge ah-badge--warning">Reconnecting...</span>
+    <>
+      {/* App Header Bar */}
+      <div className="ah-app-header">
+        <div className="ah-app-header-left">
+          <h1 className="ah-app-title">Tic-Tac-Toe</h1>
+        </div>
+        <div className="ah-app-header-right">
+          <button
+            className="ah-lobby-btn"
+            onClick={() => {
+              window.location.href = '/lobby';
+            }}
+          >
+            ← Lobby
+          </button>
+        </div>
+      </div>
+
+      {/* Header with scores - compact centered */}
+      <div style={{ width: '100%', background: 'white', borderBottom: '1px solid #e7e5e4', padding: '12px 16px', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', maxWidth: '600px', margin: '0 auto' }}>
+          <div className={`ah-badge ${isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{mySymbol}</span>
+            <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{myName}</span>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{myScore}</span>
+          </div>
+          <div style={{ fontSize: '14px', color: '#999', fontWeight: 500, textAlign: 'center' }}>
+            <div>vs</div>
+            <div style={{ fontSize: '11px', color: '#adb5bd' }}>R{game.currentRound} • First to {game.firstTo}</div>
+          </div>
+          <div className={`ah-badge ${!isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{opponentScore}</span>
+            <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponentName}</span>
+            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{isPlayer1 ? game.player2Symbol : game.player1Symbol}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Game board */}
+      <TicTacToeBoard
+        board={game.board}
+        onCellClick={makeMove}
+        myTurn={isMyTurn}
+        mySymbol={mySymbol}
+        disabled={!ready || !connected || gameEnded || opponentDisconnected}
+      />
+
+      {/* Everything below the board */}
+      <div className="ah-flex-col-center" style={{ gap: '12px', marginTop: '16px', width: '100%' }}>
+        {/* Status message */}
+        <div className={`ah-status-indicator ${isMyTurn && !gameEnded ? 'ah-status--success' : ''} ${gameEnded ? (iWon ? 'ah-status--success' : 'ah-status--error') : ''} ${opponentDisconnected || connectionStatus === 'reconnecting' ? 'ah-status--warning' : ''}`} style={{ fontSize: '18px', fontWeight: 500, padding: '10px 20px' }}>
+          {getStatusMessage()}
+        </div>
+
+        {/* Claim Win button */}
+        {opponentDisconnected && !gameEnded && (
+          <button className="ah-btn-primary" onClick={claimWin}>
+            Claim Win
+          </button>
+        )}
+
+        {error && <div className="ah-banner ah-banner--error">{error}</div>}
+
+        {/* Game actions */}
+        {!gameEnded && connected && ready && (
+          <button className="ah-btn-outline" onClick={() => setShowForfeitConfirm(true)}>
+            Leave Game
+          </button>
+        )}
+
+        {/* Back to Lobby - shown when game ends */}
+        {gameEnded && (
+          <button
+            className="ah-btn-primary"
+            onClick={() => {
+              window.location.href = '/lobby';
+            }}
+          >
+            Back to Lobby
+          </button>
         )}
       </div>
 
-      {/* Scores */}
-      <div className="ah-flex-between" style={{ marginBottom: '1.5rem' }}>
-        <div>
-          <div className="ah-meta" style={{ marginBottom: '0.25rem' }}>
-            {game.player1Name} ({game.player1Symbol})
-          </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-            {game.player1Score}
-          </div>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <div className="ah-meta" style={{ marginBottom: '0.25rem' }}>
-            First to {game.firstTo}
-          </div>
-          <div className="ah-meta">Round {game.currentRound}</div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div className="ah-meta" style={{ marginBottom: '0.25rem' }}>
-            {game.player2Name} ({game.player2Symbol})
-          </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-            {game.player2Score}
-          </div>
-        </div>
-      </div>
-
-      {/* Opponent Status */}
-      {gameActive && (
-        <div className="ah-flex-between" style={{ marginBottom: '1rem' }}>
-          <div className="ah-meta">
-            Opponent:{' '}
-            {opponentPresent ? (
-              <span className="ah-status-dot ah-status-dot--online">Online</span>
-            ) : (
-              <span className="ah-status-dot ah-status-dot--offline">Offline</span>
-            )}
+      {/* Forfeit confirmation modal */}
+      {showForfeitConfirm && (
+        <div className="ah-modal-overlay" onClick={() => setShowForfeitConfirm(false)}>
+          <div className="ah-modal ah-modal--small" onClick={(e) => e.stopPropagation()}>
+            <div className="ah-modal-header">
+              <h3 className="ah-modal-title">Leave Game?</h3>
+            </div>
+            <div className="ah-modal-body">
+              <p>If you leave, your opponent wins.</p>
+            </div>
+            <div className="ah-modal-footer">
+              <button className="ah-btn-outline" onClick={() => setShowForfeitConfirm(false)}>
+                Stay
+              </button>
+              <button className="ah-btn-danger" onClick={handleConfirmForfeit}>
+                Leave
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* Status Message */}
-      {gameActive && isMyTurn && (
-        <div className="ah-status-indicator ah-status--success" style={{ marginBottom: '1rem' }}>
-          Your turn!
-        </div>
-      )}
-
-      {gameActive && !isMyTurn && (
-        <div className="ah-status-indicator" style={{ marginBottom: '1rem' }}>
-          Waiting for {opponentName}...
-        </div>
-      )}
-
-      {!gameActive && game.winnerId && (
-        <div
-          className={`ah-status-indicator ${
-            game.winnerId === user.email ? 'ah-status--success' : 'ah-status--error'
-          }`}
-          style={{ marginBottom: '1rem' }}
-        >
-          {game.winnerId === user.email
-            ? `You won the series ${game.player1Score}-${game.player2Score}!`
-            : `${opponentName} won the series ${game.player1Score}-${game.player2Score}`}
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="ah-status-indicator ah-status--error" style={{ marginBottom: '1rem' }}>
-          {error}
-        </div>
-      )}
-
-      {/* Board */}
-      <TicTacToeBoard
-        board={game.board}
-        onCellClick={handleCellClick}
-        disabled={!gameActive || !isMyTurn}
-        currentPlayerSymbol={mySymbol}
-      />
-
-      {/* Actions */}
-      {gameActive && (
-        <div className="ah-flex-between" style={{ marginTop: '2rem' }}>
-          <button className="ah-btn-outline" onClick={handleForfeit}>
-            Forfeit
-          </button>
-
-          {!opponentPresent && (
-            <button className="ah-btn-danger" onClick={handleClaimWin}>
-              Claim Win (Opponent Disconnected)
-            </button>
-          )}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

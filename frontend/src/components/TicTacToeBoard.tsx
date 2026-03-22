@@ -1,46 +1,62 @@
 interface TicTacToeBoardProps {
   board: string[];
   onCellClick: (position: number) => void;
+  myTurn: boolean;
+  mySymbol: string;
   disabled: boolean;
-  currentPlayerSymbol: string;
 }
 
 export default function TicTacToeBoard({
   board,
   onCellClick,
+  myTurn,
+  mySymbol,
   disabled,
-  currentPlayerSymbol,
 }: TicTacToeBoardProps) {
+  const handleClick = (position: number) => {
+    if (!myTurn || board[position] !== '' || disabled) {
+      return;
+    }
+    onCellClick(position);
+  };
+
+  const renderCell = (position: number) => {
+    const value = board[position];
+    const isEmpty = value === '';
+    const isClickable = myTurn && isEmpty && !disabled;
+
+    return (
+      <button
+        key={position}
+        className={`ttt-cell ${value ? `ttt-cell-${value.toLowerCase()}` : ''} ${isClickable ? 'ttt-cell-clickable' : ''}`}
+        onClick={() => handleClick(position)}
+        disabled={!isClickable}
+      >
+        {value && <span className="ttt-symbol">{value}</span>}
+        {isEmpty && isClickable && (
+          <span className="ttt-symbol ttt-symbol-preview">{mySymbol}</span>
+        )}
+      </button>
+    );
+  };
+
   return (
     <div className="ttt-board">
-      {[0, 1, 2].map((row) => (
-        <div key={row} className="ttt-row">
-          {[0, 1, 2].map((col) => {
-            const position = row * 3 + col;
-            const value = board[position];
-            const isEmpty = value === '';
-
-            return (
-              <button
-                key={position}
-                className={`ttt-cell ${
-                  value === 'X' ? 'ttt-cell-x' : value === 'O' ? 'ttt-cell-o' : ''
-                }`}
-                onClick={() => onCellClick(position)}
-                disabled={disabled || !isEmpty}
-              >
-                {isEmpty && !disabled ? (
-                  <span className="ttt-symbol ttt-symbol-preview">
-                    {currentPlayerSymbol}
-                  </span>
-                ) : (
-                  <span className="ttt-symbol">{value}</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      ))}
+      <div className="ttt-row">
+        {renderCell(0)}
+        {renderCell(1)}
+        {renderCell(2)}
+      </div>
+      <div className="ttt-row">
+        {renderCell(3)}
+        {renderCell(4)}
+        {renderCell(5)}
+      </div>
+      <div className="ttt-row">
+        {renderCell(6)}
+        {renderCell(7)}
+        {renderCell(8)}
+      </div>
     </div>
   );
 }

@@ -1,15 +1,16 @@
-/* Tic Tac Toe Board - Game-specific styling */
-/* All other UI elements use .ah-* classes from Activity Hub shared CSS */
+/* Tic-Tac-Toe - Game Board Rendering Only */
+/* All UI elements use Activity Hub shared CSS (.ah-*) */
 
+/* Game board */
 .ttt-board {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: #E7E5E4;  /* Light stone background */
   padding: 8px;
-  background-color: #F5F5F4; /* Light stone */
   border-radius: 12px;
-  margin: 2rem auto;
   width: fit-content;
+  margin: 0 auto;
 }
 
 .ttt-row {
@@ -20,63 +21,64 @@
 .ttt-cell {
   width: 100px;
   height: 100px;
-  background-color: white;
-  border: 2px solid #E7E5E4;
+  border: none;
+  background: #f8f9fa;
   border-radius: 8px;
-  font-size: 48px;
-  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.ttt-cell:hover:not(:disabled) {
-  transform: scale(1.05);
-  border-color: #2196F3;
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+  transition: background 0.2s, transform 0.1s;
 }
 
 .ttt-cell:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+}
+
+.ttt-cell-clickable:hover {
+  background: #e9ecef;
+  transform: scale(1.02);
 }
 
 .ttt-cell-x {
-  background-color: #FEF3C7; /* Yellow-50 */
-  color: #D97706;
+  background: #fff3cd;
 }
 
 .ttt-cell-o {
-  background-color: #DBEAFE; /* Blue-50 */
-  color: #2196F3;
+  background: #cce5ff;
 }
 
 .ttt-symbol {
   font-size: 48px;
-  line-height: 1;
+  font-weight: bold;
   user-select: none;
 }
 
+.ttt-cell-x .ttt-symbol {
+  color: #856404;
+}
+
+.ttt-cell-o .ttt-symbol {
+  color: #004085;
+}
+
 .ttt-symbol-preview {
-  opacity: 0.3;
+  opacity: 0;
   transition: opacity 0.2s;
 }
 
-.ttt-cell:hover:not(:disabled) .ttt-symbol-preview {
-  opacity: 0.6;
+.ttt-cell-clickable:hover .ttt-symbol-preview {
+  opacity: 0.3;
 }
 
-/* Mobile responsive */
+/* Responsive adjustments */
 @media (max-width: 480px) {
   .ttt-cell {
     width: 80px;
     height: 80px;
-    font-size: 40px;
   }
 
   .ttt-symbol {
-    font-size: 40px;
+    font-size: 36px;
   }
 }
