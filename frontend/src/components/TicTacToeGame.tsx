@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSessionAwareness, AppHeader, GameCard } from 'activity-hub-sdk';
+import { useSessionAwareness, GameCard } from 'activity-hub-sdk';
 import { useGameSocket } from '../hooks/useGameSocket';
 import { User } from '../types/game';
 import TicTacToeBoard from './TicTacToeBoard';
@@ -132,8 +132,6 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
 
   return (
     <>
-      <AppHeader title="Tic-Tac-Toe" icon="⭕" />
-
       <GameCard>
           {/* Header with scores - compact centered */}
           <div style={{ marginBottom: '1.5rem' }}>
