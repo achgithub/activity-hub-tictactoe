@@ -57,16 +57,16 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
     };
 
     return (
-      <div className="ah-container ah-container--narrow" style={{ textAlign: 'center', marginTop: '40px' }}>
-        <div className={connectionStatus === 'failed' ? 'ah-banner ah-banner--error' : ''} style={{ fontSize: '18px', padding: '20px' }}>
+      <div className="ah-container ah-container--narrow ah-text-center ah-mt-lg">
+        <div className={connectionStatus === 'failed' ? 'ah-banner ah-banner--error' : ''}>
           {getConnectionMessage()}
         </div>
         {connectionStatus === 'failed' && (
           <>
-            <button className="ah-btn-primary" onClick={retry} style={{ marginTop: '20px' }}>
+            <button className="ah-btn-primary ah-mt" onClick={retry}>
               Tap to Retry
             </button>
-            <div style={{ marginTop: 15 }}>
+            <div className="ah-mt">
               <button
                 className="ah-btn-outline"
                 onClick={() => {
@@ -79,7 +79,7 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
           </>
         )}
         {error && connectionStatus !== 'failed' && (
-          <div className="ah-banner ah-banner--error" style={{ marginTop: '10px' }}>{error}</div>
+          <div className="ah-banner ah-banner--error ah-mt">{error}</div>
         )}
       </div>
     );
@@ -134,21 +134,21 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
     <>
       <GameCard>
           {/* Header with scores - compact centered */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-              <div className={`ah-badge ${isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{mySymbol}</span>
-                <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{myName}</span>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{myScore}</span>
+          <div className="ah-mb-lg">
+            <div className="ah-flex-center">
+              <div className={`ah-badge ttt-player-score ${isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`}>
+                <span className="ttt-symbol">{mySymbol}</span>
+                <span className="ttt-player-name">{myName}</span>
+                <span className="ttt-score">{myScore}</span>
               </div>
-              <div style={{ fontSize: '14px', color: '#999', fontWeight: 500, textAlign: 'center' }}>
+              <div className="ah-meta ttt-vs">
                 <div>vs</div>
-                <div style={{ fontSize: '11px', color: '#adb5bd' }}>R{game.currentRound} • First to {game.firstTo}</div>
+                <div className="ttt-round-info">R{game.currentRound} • First to {game.firstTo}</div>
               </div>
-              <div className={`ah-badge ${!isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', fontWeight: 600, padding: '8px 14px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 'bold', minWidth: '20px' }}>{opponentScore}</span>
-                <span style={{ fontSize: '14px', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{opponentName}</span>
-                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{isPlayer1 ? game.player2Symbol : game.player1Symbol}</span>
+              <div className={`ah-badge ttt-player-score ${!isMyTurn && !gameEnded ? 'ah-badge--primary' : ''}`}>
+                <span className="ttt-score">{opponentScore}</span>
+                <span className="ttt-player-name">{opponentName}</span>
+                <span className="ttt-symbol">{isPlayer1 ? game.player2Symbol : game.player1Symbol}</span>
               </div>
             </div>
           </div>
@@ -163,9 +163,9 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
           />
 
           {/* Everything below the board */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginTop: '1.5rem' }}>
+          <div className="ah-flex-col-center ah-mt-lg">
             {/* Status message */}
-            <div className={`ah-status-indicator ${isMyTurn && !gameEnded ? 'ah-status--success' : ''} ${gameEnded ? (iWon ? 'ah-status--success' : 'ah-status--error') : ''} ${opponentDisconnected || connectionStatus === 'reconnecting' ? 'ah-status--warning' : ''}`} style={{ fontSize: '18px', fontWeight: 500, padding: '10px 20px' }}>
+            <div className={`ah-status-indicator ${isMyTurn && !gameEnded ? 'ah-status--success' : ''} ${gameEnded ? (iWon ? 'ah-status--success' : 'ah-status--error') : ''} ${opponentDisconnected || connectionStatus === 'reconnecting' ? 'ah-status--warning' : ''}`}>
               {getStatusMessage()}
             </div>
 
