@@ -70,7 +70,7 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
               <button
                 className="ah-btn-outline"
                 onClick={() => {
-                  window.location.href = '/lobby';
+                  window.parent.postMessage({ type: 'CLOSE_APP' }, '*');
                 }}
               >
                 Back to Lobby
@@ -190,7 +190,7 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
               <button
                 className="ah-btn-primary"
                 onClick={() => {
-                  window.location.href = '/lobby';
+                  window.parent.postMessage({ type: 'CLOSE_APP' }, '*');
                 }}
               >
                 Back to Lobby
