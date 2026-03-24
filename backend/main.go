@@ -50,11 +50,11 @@ func main() {
 	}
 	log.Printf("✅ Connected to Redis at %s:%s", redisHost, redisPort)
 
-	// Initialize Tic Tac Toe database
-	dbHost := getEnv("DB_HOST", "localhost")
+	// Initialize Tic Tac Toe database (match Activity Hub defaults)
+	dbHost := getEnv("DB_HOST", "127.0.0.1")
 	dbPort := getEnv("DB_PORT", "5432")
-	dbUser := getEnv("DB_USER", "postgres")
-	dbPass := getEnv("DB_PASS", "")
+	dbUser := getEnv("DB_USER", "activityhub")
+	dbPass := getEnv("DB_PASS", "pubgames")
 	dbName := getEnv("DB_NAME", "tictactoe")
 
 	var err error
