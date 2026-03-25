@@ -16,8 +16,7 @@ interface UseGameSocketReturn {
 
 export function useGameSocket(
   gameId: string,
-  user: User,
-  token: string
+  user: User
 ): UseGameSocketReturn {
   const [game, setGame] = useState<Game | null>(null);
   const [connected, setConnected] = useState(false);
@@ -27,6 +26,9 @@ export function useGameSocket(
     'connecting' | 'connected' | 'reconnecting' | 'failed'
   >('connecting');
   const [retryCount, setRetryCount] = useState(0);
+
+  // Get token from localStorage (stored by Activity Hub SDK)
+  const token = localStorage.getItem('token') || '';
 
   // SSE URL - RELATIVE (Activity Hub proxies to Unix socket)
   const sseUrl = `api/game/${gameId}/stream?token=${encodeURIComponent(token)}`;

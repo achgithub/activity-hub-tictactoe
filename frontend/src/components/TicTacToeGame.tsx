@@ -7,10 +7,9 @@ import TicTacToeBoard from './TicTacToeBoard';
 interface TicTacToeGameProps {
   gameId: string;
   user: User;
-  token: string;
 }
 
-export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProps) {
+export default function TicTacToeGame({ gameId, user }: TicTacToeGameProps) {
   const [showForfeitConfirm, setShowForfeitConfirm] = useState(false);
 
   const {
@@ -24,7 +23,7 @@ export default function TicTacToeGame({ gameId, user, token }: TicTacToeGameProp
     forfeit,
     claimWin,
     retry,
-  } = useGameSocket(gameId, user, token);
+  } = useGameSocket(gameId, user);
 
   // Get opponent ID
   const opponentId =
